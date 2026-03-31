@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Journée de l'Apéro</title>
+
     <style>
         body {
             margin: 0;
@@ -58,25 +59,22 @@
             animation: droiteMove 2s infinite ease-in-out;
         }
 
-        /* Animation gauche vers le centre */
         @keyframes gaucheMove {
             0%, 100% { transform: translateX(0) rotate(0deg); }
             40% { transform: translateX(25px) rotate(10deg); }
-            50% { transform: translateX(30px) rotate(15deg); } /* contact */
+            50% { transform: translateX(30px) rotate(15deg); }
             60% { transform: translateX(25px) rotate(10deg); }
         }
 
-        /* Petit rebond du verre central */
         @keyframes centreBounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
 
-        /* Animation droite vers le centre */
         @keyframes droiteMove {
             0%, 100% { transform: translateX(0) rotate(0deg); }
             40% { transform: translateX(-25px) rotate(-10deg); }
-            50% { transform: translateX(-30px) rotate(-15deg); } /* contact */
+            50% { transform: translateX(-30px) rotate(-15deg); }
             60% { transform: translateX(-25px) rotate(-10deg); }
         }
 
@@ -88,4 +86,22 @@
         }
     </style>
 </head>
+
 <body>
+
+    <h1>Journée de l'Apéro 🍹</h1>
+
+    <div id="date-container">
+        Aujourd’hui !
+    </div>
+
+    <div class="emojis">
+        <span class="verre gauche">🍷</span>
+        <span class="verre centre">🍷</span>
+        <span class="verre droite">🍷</span>
+    </div>
+
+    <p>Il est temps de trinquer ! 🥂</p>
+
+</body>
+</html>
