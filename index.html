@@ -85,6 +85,44 @@
             max-width: 600px;
             padding: 0 20px;
             line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        /* Styles pour le bouton et le compteur */
+        #btn-biere {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 15px 30px;
+            margin-top: 20px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        #btn-biere:hover {
+            background-color: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        #btn-biere:disabled {
+            background-color: #95a5a6;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .compteur-container {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #c0392b;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -105,7 +143,13 @@
         On se la colle fort ce soir !
     </p>
 
+    <button id="btn-biere">🍻 J'ai bu une bière !</button>
+    <div class="compteur-container">
+        Total de bières bues : <span id="affichage-compteur">?</span>
+    </div>
+
     <script>
+        // Gestion de la date
         function afficherDateDuJour() {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const date = new Date();
@@ -115,8 +159,34 @@
 
             document.getElementById('date-container').innerText = "Aujourd'hui, " + dateFormatee ;
         }
-
         afficherDateDuJour();
+
+        // Gestion du compteur avec Google Sheets
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbzR8Ib7yFu485UZb23OZuyshMJRouEqWU1Se3QqQGSsowCG-UZPGLOu2pzZ28yBJqi4fw/exec";
+        const btnBiere = document.getElementById("btn-biere");
+        const affichageCompteur = document.getElementById("affichage-compteur");
+
+        btnBiere.addEventListener("click", () => {
+            // Désactiver le bouton pendant la requête
+            btnBiere.disabled = true;
+            btnBiere.innerText = "Santé ! ⏳..."; 
+            
+            fetch(scriptUrl)
+                .then(response => response.text())
+                .then(data => {
+                    // Mettre à jour le compteur avec la donnée renvoyée par Google Sheets
+                    affichageCompteur.innerText = data; 
+                    
+                    // Réactiver le bouton
+                    btnBiere.disabled = false;
+                    btnBiere.innerText = "🍻 J'ai bu une bière !";
+                })
+                .catch(error => {
+                    console.error("Erreur:", error);
+                    btnBiere.disabled = false;
+                    btnBiere.innerText = "❌ Oups, réessaie !";
+                });
+        });
     </script>
 
 </body>
