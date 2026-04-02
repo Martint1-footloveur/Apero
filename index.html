@@ -7,7 +7,8 @@
     <style>
         body {
             margin: 0;
-            height: 100vh;
+            /* Changé height en min-height pour permettre le scroll */
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -16,18 +17,19 @@
             font-family: 'Helvetica Neue', Arial, sans-serif;
             color: #2c3e50;
             text-align: center;
-            overflow: hidden;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            /* Suppression de overflow: hidden pour autoriser le défilement */
         }
 
         h1 {
             font-size: 3.5rem;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            padding: 0 20px;
         }
 
         #date-container {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #fff;
             background-color: #d35400;
@@ -46,61 +48,43 @@
             display: inline-block;
         }
 
-        .gauche {
-            animation: gaucheMove 2s infinite ease-in-out;
-        }
+        .gauche { animation: gaucheMove 2s infinite ease-in-out; }
+        .centre { animation: centreBounce 2s infinite ease-in-out; }
+        .droite { animation: droiteMove 2s infinite ease-in-out; }
 
-        .centre {
-            animation: centreBounce 2s infinite ease-in-out;
-        }
-
-        .droite {
-            animation: droiteMove 2s infinite ease-in-out;
-        }
-
-        /* Animation gauche vers le centre */
         @keyframes gaucheMove {
             0%, 100% { transform: translateX(0) rotate(0deg); }
-            40% { transform: translateX(25px) rotate(10deg); }
-            50% { transform: translateX(30px) rotate(15deg); } /* contact */
-            60% { transform: translateX(25px) rotate(10deg); }
+            50% { transform: translateX(30px) rotate(15deg); }
         }
 
-        /* Petit rebond du verre central */
         @keyframes centreBounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-15px); }
         }
 
-        /* Animation droite vers le centre */
         @keyframes droiteMove {
             0%, 100% { transform: translateX(0) rotate(0deg); }
-            40% { transform: translateX(-25px) rotate(-10deg); }
-            50% { transform: translateX(-30px) rotate(-15deg); } /* contact */
-            60% { transform: translateX(-25px) rotate(-10deg); }
+            50% { transform: translateX(-30px) rotate(-15deg); }
         }
 
         p {
             font-size: 1.5rem;
             max-width: 600px;
-            padding: 0 20px;
             line-height: 1.5;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
-        /* Styles pour le bouton et le compteur */
         #btn-biere {
             font-size: 1.5rem;
             font-weight: bold;
-            padding: 15px 30px;
-            margin-top: 20px;
+            padding: 15px 40px;
             background-color: #27ae60;
             color: white;
             border: none;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
-            transition: transform 0.2s, background-color 0.2s;
+            transition: all 0.2s;
         }
 
         #btn-biere:hover {
@@ -110,7 +94,6 @@
 
         #btn-biere:disabled {
             background-color: #95a5a6;
-            box-shadow: none;
             cursor: not-allowed;
             transform: scale(1);
         }
@@ -119,10 +102,11 @@
             font-size: 2rem;
             font-weight: bold;
             color: #c0392b;
-            margin-top: 15px;
-            background: rgba(255, 255, 255, 0.5);
-            padding: 10px 20px;
-            border-radius: 10px;
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 2px dashed #d35400;
         }
     </style>
 </head>
@@ -144,47 +128,61 @@
     </p>
 
     <button id="btn-biere">🍻 J'ai bu une bière !</button>
+
     <div class="compteur-container">
-        Total de bières bues : <span id="affichage-compteur">?</span>
+        Total de bières bues : <span id="affichage-compteur">...</span>
     </div>
 
     <script>
-        // Gestion de la date
+        // 1. AFFICHER LA DATE
         function afficherDateDuJour() {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const date = new Date();
             let dateFormatee = date.toLocaleDateString('fr-FR', options);
-
             dateFormatee = dateFormatee.charAt(0).toUpperCase() + dateFormatee.slice(1);
-
             document.getElementById('date-container').innerText = "Aujourd'hui, " + dateFormatee ;
         }
         afficherDateDuJour();
 
-        // Gestion du compteur avec Google Sheets
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbzR8Ib7yFu485UZb23OZuyshMJRouEqWU1Se3QqQGSsowCG-UZPGLOu2pzZ28yBJqi4fw/exec";
+        // 2. CONFIGURATION GOOGLE SHEETS
+        // REMPLACE BIEN L'URL CI-DESSOUS PAR TON URL DE DÉPLOIEMENT
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbxLmWvVZbgzFXqnZffYO3fvQQPRFw0BMoamfhR2Po85DekHIzF7ko2kdRlYd0emQj6QzA/exec";
         const btnBiere = document.getElementById("btn-biere");
         const affichageCompteur = document.getElementById("affichage-compteur");
 
+        // Fonction pour récupérer le score sans ajouter de +1
+        function chargerCompteur() {
+            fetch(scriptUrl + "?action=lire")
+                .then(response => response.text())
+                .then(data => {
+                    affichageCompteur.innerText = data;
+                })
+                .catch(error => {
+                    console.error("Erreur chargement:", error);
+                    affichageCompteur.innerText = "Erreur";
+                });
+        }
+
+        // Charger le compteur dès l'arrivée sur le site
+        chargerCompteur();
+
+        // 3. ACTION DU BOUTON (+1)
         btnBiere.addEventListener("click", () => {
-            // Désactiver le bouton pendant la requête
             btnBiere.disabled = true;
             btnBiere.innerText = "Santé ! ⏳..."; 
             
-            fetch(scriptUrl)
+            // On envoie l'action "boire" pour faire le +1
+            fetch(scriptUrl + "?action=boire")
                 .then(response => response.text())
                 .then(data => {
-                    // Mettre à jour le compteur avec la donnée renvoyée par Google Sheets
                     affichageCompteur.innerText = data; 
-                    
-                    // Réactiver le bouton
                     btnBiere.disabled = false;
                     btnBiere.innerText = "🍻 J'ai bu une bière !";
                 })
                 .catch(error => {
-                    console.error("Erreur:", error);
+                    console.error("Erreur clic:", error);
                     btnBiere.disabled = false;
-                    btnBiere.innerText = "❌ Oups, réessaie !";
+                    btnBiere.innerText = "❌ Réessaie !";
                 });
         });
     </script>
